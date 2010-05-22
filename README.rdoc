@@ -1,0 +1,72 @@
+= Cranky
+
+Cranky is a fixtures replacement inspired by the excellent Factory Girl, but simpler and with less magic going on.
+
+In short use this if you want to naturally create factory methods that you feel 100% in control of and without a block in sight.
+
+== Install
+
+First install the gem...
+
+  gem install cranky
+
+Or for rails stick it in your environment.rb or Gemfile as normal...
+
+  # environment.rb
+  config.gem "cranky"
+
+  # Gemfile
+  gem "cranky"
+
+Then in your _spec_helper.rb_ ...
+
+  require "cranky"
+  require "factories/my_factories"
+
+The above assumes that you have created your factory methods in a file called _my_factories.rb_ in the _spec/factories_ directory.
+You can create as many different factory files as you want, just require them in the same way.
+
+== Usage Syntax
+
+Cranky steals its core syntax from Factory Girl...
+
+  Factory.build(:user)                  # Build a user instance without saving
+  Factory.create(:user)                 # Build and save a user instance
+  Factory.build(:user, :name => "Fred") # Override a default attribute value
+
+== Define Your Factories
+
+This is where Cranky really shines, if you can create Ruby methods, you can pretty much create your factories without having to refer to the syntax documentation ever again.
+
+The only rules are:
+
+1. Your factory must use the +Cranky+ class
+3. The method must return the object you wanted to created
+
+So for example to create a simple user factory...
+
+  # factories/my_factories.rb
+
+  class Cranky
+
+    # Simple factory method to create a user named Jimmy, you would call this via Factory.build(:user)
+    def user
+      u = User.new
+      u.name = "Jimmy"
+      u
+    end
+
+  end
+
+Now of course you are working in straight Ruby here, so you can extend this any way you want as long as you follow the 3 rules. 
+
+
+
+== Helpers
+
+Of course its nice to get some help...
+
+
+=== Reset
+
+
