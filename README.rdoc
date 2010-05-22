@@ -41,32 +41,144 @@ This is where Cranky really shines, if you can create Ruby methods, you can pret
 The only rules are:
 
 1. Your factory must use the +Cranky+ class
-3. The method must return the object you wanted to created
+2. The method must return the object you wanted to create
+3. You can access the overrides passed in via options[:key]  (not really a rule!) 
 
 So for example to create a simple user factory...
 
   # factories/my_factories.rb
-
   class Cranky
 
-    # Simple factory method to create a user named Jimmy, you would call this via Factory.build(:user)
+    # Simple factory method to create a user instance, you would call this via Factory.build(:user)
     def user
       u = User.new
-      u.name = "Jimmy"
+      u.name = options[:name] || "Jimmy"  # Use the passed in name if present, or the default
       u
     end
 
   end
 
-Now of course you are working in straight Ruby here, so you can extend this any way you want as long as you follow the 3 rules. 
+Now of course you are working in straight Ruby here, so you can extend this any way you want as long as you follow the above rules. 
 
+For example here it is with the capability to automatically create a default account association...
 
+  # factories/my_factories.rb
+  class Cranky
+
+    # Return the default account if it already exists, or call the account factory to make one
+    def default_account
+      @default_account ||= create(:account) 
+    end
+
+    def user
+      u = User.new
+      u.name = options[:name] || "Jimmy"
+      u.account = default_account
+      u
+    end
+
+    ... # Create the account factory in the same way
+
+  end
+
+Quite often the database will be cleared between tests however the instance variable in the factory will not necessarily reset which could lead to problems if the tests check for the account in the database.
+So a nice tip is to implement default associations like this (assuming you're using Rails)...
+
+  # Return the default account if it already exists, or call the account factory to make one
+  def default_account
+    # If the default acount exists, but has been cleared from the database...
+    if @default_account && !Account.exists?(@default_account.id)
+      @default_account = nil
+    end
+    @default_account ||= create(:account) 
+  end
 
 == Helpers
 
 Of course its nice to get some help...
 
+=== Define
+
+Most of your factories are likely to simply define a list of mimimum attribute values, use the define helper for this. 
+
+  # The user factory re-written using the define helper
+  def user
+    define :name => "Jimmy",
+           :account => default_account
+  end
+
+Note that you don't have to worry about handling the overrides here, they will be applied automatically if present, just define the defaults.
+
+The best thing about this is that there are no pesky blocks to worry about. The define argument is just a regular hash, you have complete freedom to choose how you generate the values to be passed to this.
+
+The define method will return the object, you can grab this for additional manipulation as you would expect...
+
+  def user
+    u = define :name => "Jimmy",
+               :account => default_account
+    u.do_something
+    u               # Remember to return it at the end
+  end
+
+If for any reason you want to have your factory method different from the model it instantiates you can pass in a :class attribute to the define method...
+
+  # Called via Factory.create(:jimmy)
+  def jimmy
+    define :class => :user,
+           :name => "Jimmy",
+           :account => default_account
+  end
+
+=== Inherit
+
+You can inherit from other factories via the inherit method. So for example to create an admin user you might do...
+
+  # Called via Factory.create(:admin)
+  def admin
+    inherit(:user, :account => admin_account)
+  end
+
+=== Unique Attributes (n)
+
+If you want to generate unique attributes you can call the n method which will automatically increment the next time it is called.
+For example to give each user a unique name...
+
+  def user
+    define :name => "Jimmy#{n}",
+           :account => default_account
+  end
+
+Note that every time n is called it will increment, it does not implement a unique counter per attribute.
 
 === Reset
 
+Reset all instance variables in the factory. This may be useful to run between tests depending on your factory logic...
 
+  before(:each) do
+    Factory.reset
+  end
+
+=== Debug
+
+Sometimes it is useful to be warned that your factory is generating invalid instances (although quite often your tests may intentionally generate invalid instances, so use this with care). By turning on debug the Factory will raise an error if the generated instance is invalid...
+
+  Factory.debug = true
+
+Note that this relies on the instance having a valid? method, so in practice this may only work with Rails.
+
+=== Attributes For
+
+Returns the attributes that would be applied for a given factory...
+
+  valid_attributes = Factory.attributes_for(:user)
+
+Requires that the instance has an attributes method, so again may only work under Rails.
+
+== Additional Features
+
+Want any? Feel free to let me know.
+
+== Thanks
+
+Cranky was inspired by factory_girl[http://github.com/thoughtbot/factory_girl] and miniskirt[http://gist.github.com/273579].
+Thanks to both.
