@@ -11,25 +11,24 @@ end
 
 task :default => :spec
 
-task :commit do
+task :release_tag do
   system "git commit -a -m 'Release #{Cranky::VERSION}'"
-end
-
-task :tag do
   system "git tag -a v#{Cranky::VERSION} -m 'version #{Cranky::VERSION}'"
 end
 
 # Push to github
+desc "Push to Github"
 task :push do
   system "git push --tags origin master"
 end
 
+desc "Build the gem"
 task :build do
   system "gem build cranky.gemspec"
 end
  
 desc "Release version #{Cranky::VERSION}"
-task :release => [:build, :commit, :tag, :push] do
+task :release => [:build, :release_tag, :push] do
   system "gem push cranky-#{Cranky::VERSION}.gem"
 end
 
