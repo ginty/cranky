@@ -1,6 +1,6 @@
 class Cranky
 
-  VERSION = "0.0.3"
+  VERSION = "0.0.4"
 
 #  Dir.glob("#{File.expand_path(File.dirname(__FILE__))}/*.rb").each do |file|
 #    require file
@@ -66,7 +66,7 @@ class Cranky
       item = get_constant(attrs[:class] ? attrs[:class] : @what.last).new
       final_attrs.delete(:class)
       final_attrs.each do |attr, value|
-        item.send("#{attr}=", value)
+        item.send("#{attr}=", value) if item.respond_to?("#{attr}=")
       end
       item
     end

@@ -205,7 +205,7 @@ Note that every time n is called it will increment, it does not implement a uniq
 
 === Reset
 
-Reset all instance variables in the factory. This may be useful to run between tests depending on your factory logic...
+Clear all instance variables in the factory. This may be useful to run between tests depending on your factory logic...
 
   before(:each) do
     Factory.reset

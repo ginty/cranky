@@ -72,6 +72,12 @@ describe Cranky do
       error = true 
     end
     error.should == true
+    Factory.debug = false
+  end
+
+  it "should allow arguments to be passed in the overrides hash" do
+    Factory.build(:user).argument_received.should == nil
+    Factory.build(:user, :argument_supplied => true).argument_received.should == true
   end
   
 end

@@ -8,6 +8,7 @@ class User
   attr_accessor :role
   attr_accessor :email
   attr_accessor :unique
+  attr_accessor :argument_received
 
   def save
     @saved = true
@@ -46,11 +47,13 @@ class Cranky
   end
 
   def user_by_define
-    define :class => :user, 
-           :name => "Fred",
-           :role => :user,
-           :unique => "value#{n}",
-           :email => "fred@home.com"
+    u = define :class => :user, 
+               :name => "Fred",
+               :role => :user,
+               :unique => "value#{n}",
+               :email => "fred@home.com"
+    u.argument_received = true if options[:argument_supplied]
+    u
   end
   alias :user :user_by_define
 
