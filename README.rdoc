@@ -18,12 +18,13 @@ Or for rails stick it in your environment.rb or Gemfile as normal...
   # Gemfile
   gem "cranky"
 
-Then in your _spec_helper.rb_ ...
+Then in your spec_helper.rb ...
 
+  # spec_helper.rb
   require "cranky"
   require "factories/my_factories"
 
-The above assumes that you have created your factory methods in a file called _my_factories.rb_ in the _spec/factories_ directory.
+The above assumes that you have created your factory methods in a file called my_factories.rb in the spec/factories directory.
 You can create as many different factory files as you want, just require them in the same way.
 
 == Usage Syntax
@@ -32,16 +33,16 @@ Cranky steals its core syntax from Factory Girl...
 
   Factory.build(:user)                  # Build a user instance without saving
   Factory.create(:user)                 # Build and save a user instance
-  Factory.build(:user, :name => "Fred") # Override a default attribute value
+  Factory.build(:user, :name => "Ian")  # Override a default attribute value
 
 == Define Your Factories
 
-This is where Cranky really shines, if you can create Ruby methods, you can pretty much create your factories without having to refer to the syntax documentation ever again.
+This is where Cranky really shines, if you can create Ruby methods you can pretty much create your factories without having to refer to the syntax documentation ever again.
 
 The only rules are:
 
 1. Your factory must use the +Cranky+ class
-2. The method must return the object you wanted to create
+2. Your factory method must return the object you wanted to create
 3. You can access the overrides passed in via options[:key]  (not really a rule!) 
 
 So for example to create a simple user factory...
@@ -81,12 +82,12 @@ For example here it is with the capability to automatically create a default acc
 
   end
 
-Quite often the database will be cleared between tests however the instance variable in the factory will not necessarily reset which could lead to problems if the tests check for the account in the database.
+Quite often the database will be cleared between tests however the instance variable in the factory will not necessarily be reset which could lead to problems if the tests check for the associated record in the database.
 So a nice tip is to implement default associations like this (assuming you're using Rails)...
 
   # Return the default account if it already exists, or call the account factory to make one
   def default_account
-    # If the default acount exists, but has been cleared from the database...
+    # If the default account exists, but has been cleared from the database...
     if @default_account && !Account.exists?(@default_account.id)
       @default_account = nil
     end
@@ -109,7 +110,7 @@ Most of your factories are likely to simply define a list of mimimum attribute v
 
 Note that you don't have to worry about handling the overrides here, they will be applied automatically if present, just define the defaults.
 
-The best thing about this is that there are no pesky blocks to worry about. The define argument is just a regular hash, you have complete freedom to choose how you generate the values to be passed to this.
+The best thing about this is that there are no pesky blocks to worry about. The define argument is just a regular hash, you have complete freedom to choose how you generate the values to be passed into it.
 
 The define method will return the object, you can grab this for additional manipulation as you would expect...
 
@@ -120,7 +121,7 @@ The define method will return the object, you can grab this for additional manip
     u               # Remember to return it at the end
   end
 
-If for any reason you want to have your factory method different from the model it instantiates you can pass in a :class attribute to the define method...
+If for any reason you want to have your factory method named differently from the model it instantiates you can pass in a :class attribute to the define method...
 
   # Called via Factory.create(:jimmy)
   def jimmy
@@ -135,7 +136,7 @@ You can inherit from other factories via the inherit method. So for example to c
 
   # Called via Factory.create(:admin)
   def admin
-    inherit(:user, :account => admin_account)
+    inherit(:user, :account => admin_account)  # Pass in any attribute overrides you want
   end
 
 === Unique Attributes (n)
