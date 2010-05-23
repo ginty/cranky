@@ -21,7 +21,7 @@ end
 
 # Push to github
 task :push do
-  system "git push origin master"
+  system "git push --tags origin master"
 end
 
 task :build do
