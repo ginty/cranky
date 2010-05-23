@@ -11,11 +11,16 @@ end
 
 task :default => :spec
 
+task :push do
+  system "git push origin master"
+end
+
+
 task :build do
   system "gem build cranky.gemspec"
 end
  
-desc "Release version #{Cranky::VERSION} to Rubygems.org"
+desc "Release version #{Cranky::VERSION}"
 task :release => :build do
   system "gem push cranky-#{Cranky::VERSION}.gem"
 end
