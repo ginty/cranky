@@ -46,13 +46,13 @@ Cranky allows you to build factories via std Ruby methods, like this...
       # Define attributes via a hash, generate the values any way you want
       define :name    => "Jimmy",               
              :email   => "jimmy#{n}@home.com",   # An 'n' counter method is available to help make things unique
-             :role    => :user,
+             :role    => "pleb",
              :address => default_address         # Call your own helper methods to wire up your associations
     end
 
     # Easily create variations via the inherit helper, callable via Factory.build(:admin)
     def admin
-      inherit(:user, :role => :admin)
+      inherit(:user, :role => "admin")
     end
 
     # Return a default address if it already exists, or call the address factory to make one
@@ -92,7 +92,7 @@ So for example to create a simple user factory...
       u       = User.new
       u.name  = options[:name] || "Jimmy"                 # Use the passed in name if present, or the default
       u.email = options[:email] || "jimmy#{n}@home.com"   # Give each user a unique email address
-      u.role  = options[:role] || :user
+      u.role  = options[:role] || "pleb"
       u
     end
 
@@ -114,7 +114,7 @@ For example here it is with the capability to automatically create a default add
       u         = User.new
       u.name    = options[:name] || "Jimmy"
       u.email   = options[:email] || "jimmy#{n}@home.com"
-      u.role    = options[:role] || :user
+      u.role    = options[:role] || "pleb"
       u.address = default_address
       u
     end
@@ -141,7 +141,7 @@ You can pass additional arguments to your factories via the overrides hash...
     u         = User.new
     u.name    = options[:name] || "Jimmy"
     u.email   = options[:email] || "jimmy#{n}@home.com"
-    u.role    = options[:role] || :user
+    u.role    = options[:role] || "pleb"
     u.address = options[:new_address] ? create(:address) : default_address
     u
   end
@@ -158,7 +158,7 @@ Most of your factories are likely to simply define a list of mimimum attribute v
   def user
     define :name    => "Jimmy",
            :email   => "jimmy#{n}@home.com",
-           :role    => :user,
+           :role    => "pleb",
            :address => default_address
   end
 
@@ -171,7 +171,7 @@ The define method will return the object, you can grab this for additional manip
   def user
     u = define :name    => "Jimmy",
                :email   => "jimmy#{n}@home.com",
-               :role    => :user,
+               :role    => "pleb",
                :address => default_address
     u.do_something
     u               # Remember to return it at the end
@@ -184,7 +184,7 @@ If for any reason you want to have your factory method named differently from th
     u = define :class   => :user, 
                :name    => "Jimmy",
                :email   => "jimmy#{n}@home.com",
-               :role    => :user,
+               :role    => "pleb",
                :address => default_address
   end
 
@@ -194,7 +194,7 @@ You can inherit from other factories via the inherit method. So for example to c
 
   # Called via Factory.create(:admin)
   def admin
-    inherit(:user, :role => :admin)  # Pass in any attribute overrides you want
+    inherit(:user, :role => "admin")  # Pass in any attribute overrides you want
   end
 
 === Unique Attributes (n)
