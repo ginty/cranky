@@ -1,6 +1,6 @@
 class Cranky
 
-  VERSION = "0.0.4"
+  VERSION = "0.0.5"
 
 #  Dir.glob("#{File.expand_path(File.dirname(__FILE__))}/*.rb").each do |file|
 #    require file
