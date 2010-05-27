@@ -2,7 +2,7 @@
 
 Cranky is a fixtures replacement inspired by the excellent Factory Girl, but simpler and with less magic going on.
 
-In short use this if you want to naturally create factory methods that you feel 100% in control of and without a block in sight.
+In short use this if you want to quickly and naturally create factory methods that you feel 100% in control of.
 
 == Install
 
