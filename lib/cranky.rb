@@ -62,11 +62,15 @@ class Cranky
 
     def define(attrs={})
       final_attrs = attrs.merge(@attrs.last)
-      #item = (attrs[:class] ? attrs[:class] : @what.last).to_s.camelcase.constantize.new
       item = get_constant(attrs[:class] ? attrs[:class] : @what.last).new
       final_attrs.delete(:class)
+      # Assign all explicit attributes first
       final_attrs.each do |attr, value|
-        item.send("#{attr}=", value) if item.respond_to?("#{attr}=")
+        item.send("#{attr}=", value) if item.respond_to?("#{attr}=") && !value.respond_to?("call")
+      end
+      # Then call any blocks
+      final_attrs.each do |attr, value|
+        item.send("#{attr}=", value.call(item)) if item.respond_to?("#{attr}=") && value.respond_to?("call")
       end
       item
     end

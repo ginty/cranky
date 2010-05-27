@@ -79,6 +79,13 @@ describe Cranky do
     Factory.build(:user).argument_received.should == nil
     Factory.build(:user, :argument_supplied => true).argument_received.should == true
   end
+
+  it "should allow blocks to be passed into the define method" do
+    Factory.build(:user, :name => "jenny", :email => lambda{ |u| "#{u.name}@home.com" }).email.should == "jenny@home.com"
+    Factory.build(:user, :name => lambda{"jimmy" + " cranky"}).name.should == "jimmy cranky"
+    Factory.build(:user, :name => "jenny", :email => Proc.new{ |u| "#{u.name}@home.com" }).email.should == "jenny@home.com"
+    Factory.build(:user, :name => Proc.new{"jimmy" + " cranky"}).name.should == "jimmy cranky"
+  end
   
 end
 

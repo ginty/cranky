@@ -129,7 +129,7 @@ So a nice tip is to implement default associations like this (assuming you're us
   # Return the default address if it already exists, or call the address factory to make one
   def default_address
     # If the default address exists, but has been cleared from the database...
-    @default_address = nil if @default_address && !Account.exists?(@default_address.id)
+    @default_address = nil if @default_address && !Address.exists?(@default_address.id)
     @default_address ||= create(:address) 
   end
 
@@ -164,7 +164,16 @@ Most of your factories are likely to simply define a list of mimimum attribute v
 
 Note that you don't have to worry about handling the overrides here, they will be applied automatically if present, just define the defaults.
 
-The best thing about this is that there are no pesky blocks to worry about. The define argument is just a regular hash, you have complete freedom to choose how to generate the values to be passed into it.
+The define argument is just a regular hash, you have complete freedom to choose how to generate the values to be passed into it.
+
+If you like you can generate attributes with a block:
+
+  def user
+    define :name    => "Jimmy",
+           :email   => lambda{|u| "#{u.name.downcase}@home.com"},
+           :role    => "pleb",
+           :address => default_address
+  end
 
 The define method will return the object, you can grab this for additional manipulation as you would expect...
 
