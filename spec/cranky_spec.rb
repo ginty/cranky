@@ -63,16 +63,45 @@ describe Cranky do
     b.unique.should_not == c.unique
   end
   
-  it "should raise an error if the factory produces an invalid object when debug is enabled (rails only)" do
-    Factory.debug = true
-    error = false
-    begin
-      Factory.build(:user)
-    rescue
-      error = true 
+  describe "debugger" do 
+
+    it "should raise an error if the factory produces an invalid object when enabled (rails only)" do
+      Factory.debug = true
+      error = false
+      begin
+        Factory.build(:user)
+      rescue
+        error = true 
+      end
+      error.should == true
+      Factory.debug = false
     end
-    error.should == true
-    Factory.debug = false
+
+    it "can be run as a block" do
+      Factory.debug.should == false
+      error = false
+      Factory.debug do
+        begin
+          Factory.build(:user)
+        rescue
+          error = true 
+        end
+      end
+      error.should == true
+      Factory.debug.should == false
+    end
+
+    it "can be run inline" do
+      Factory.debug.should == false
+      error = false
+      begin
+        Factory.debug(:user)
+      rescue
+        error = true 
+      end
+      error.should == true
+    end
+
   end
 
   it "should allow arguments to be passed in the overrides hash" do

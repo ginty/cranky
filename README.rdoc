@@ -36,6 +36,15 @@ Cranky steals its core syntax from Factory Girl...
   Factory.build(:user, :name => "Ian")  # Override a default attribute value
   Factory.attributes_for(:user)         # Return a set of valid attributes rather than the object
 
+And has a nice debug option (rails only) to warn you when your factory is broken, recommend you do this for your first spec...
+
+  describe User do
+    it "should have a working factory" do
+      # This will raise an error and report the validation errors should they occur
+      Factory.debug(:user).should be_valid
+    end
+  end
+
 Cranky allows you to build factories via std Ruby methods, like this...
 
   # factories/my_factories.rb
@@ -225,6 +234,16 @@ Clear all instance variables in the factory. This may be useful to run between t
 Sometimes it is useful to be warned that your factory is generating invalid instances (although quite often your tests may intentionally generate invalid instances, so use this with care). By turning on debug the Factory will raise an error if the generated instance is invalid...
 
   Factory.debug = true
+
+Or run within a block...
+
+  Factory.debug do
+    Factory.build(:user)
+  end
+
+Or inline (runs the build method with debug enabled)...
+
+  Factory.debug(:user) 
 
 Note that this relies on the instance having a valid? method, so in practice this may only work with Rails.
 

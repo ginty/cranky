@@ -12,7 +12,7 @@ class Cranky
 #    end
 #  end
 
-  attr_accessor :debug
+  attr_writer :debug
 
   def initialize
     @what = []
@@ -37,6 +37,21 @@ class Cranky
 
   def attributes_for(what, attrs={})
     build(what, attrs).attributes
+  end
+
+  def debug(what=nil)
+    if block_given?
+      @debug = true
+      yield
+      @debug = false
+    elsif what
+      @debug = true
+      item = build(what) 
+      @debug = false
+      item
+    else
+      @debug
+    end
   end
 
   private

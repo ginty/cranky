@@ -1,0 +1,14 @@
+GEM
+  remote: http://gemcutter.org/
+  specs:
+    gemcutter (0.6.1)
+    rcov (0.9.8)
+    rspec (1.3.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  gemcutter
+  rcov
+  rspec (= 1.3.0)
