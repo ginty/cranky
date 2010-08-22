@@ -75,11 +75,17 @@ describe "The Cranky factory" do
     it "should raise an error if the factory produces an invalid object when enabled (rails only)" do
       error = false
       begin
-        Factory.debug(:user)
+        Factory.debug(:user, :valid => false)
       rescue
         error = true 
       end
       error.should == true
+    end
+
+    it "should have debug work like build and create when there are no errors" do
+      Factory.debug(:user).class.should == User
+      Factory.debug(:user).saved?.should == false
+      Factory.debug!(:user).saved?.should == true
     end
 
   end

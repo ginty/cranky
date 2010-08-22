@@ -4,6 +4,8 @@ require 'cranky'
 
 
 class TestClass
+  attr_accessor :valid
+
   def save
     @saved = true
   end
@@ -13,7 +15,7 @@ class TestClass
   end
 
   def valid?
-    false
+    @valid
   end
 
   def errors
@@ -53,6 +55,7 @@ class Cranky::Factory
     u.unique = "value#{n}"
     u.email = "fred@home.com"
     u.address = Factory.build(:address)
+    u.valid = true
     u
   end
 
@@ -62,7 +65,8 @@ class Cranky::Factory
                :role => :user,
                :unique => "value#{n}",
                :email => "fred@home.com",
-               :address => Factory.create(:address)
+               :address => Factory.create(:address),
+               :valid => true
     u.argument_received = true if options[:argument_supplied]
     u
   end
@@ -78,7 +82,8 @@ class Cranky::Factory
 
   def address
     define :address => "25 Wisteria Lane",
-           :city => "New York"
+           :city => "New York",
+           :valid => true
   end
 
 end

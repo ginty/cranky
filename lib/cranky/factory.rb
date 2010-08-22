@@ -41,11 +41,12 @@ module Cranky
       if !item.valid?
         raise "Oops, the #{item.class} created by the Factory has the following errors: #{item.errors}"
       end
+      item
     end
 
     # Same thing for create
     def debug!(*args)
-      item = debug
+      item = debug(*args)
       item.save
       item
     end
