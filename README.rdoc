@@ -89,7 +89,7 @@ This is where Cranky really shines, if you can create Ruby methods you can prett
 
 The only rules are:
 
-1. Your factory must extend the +Cranky::Factory+ class
+1. Your factory must extend the Cranky::Factory class
 2. Your factory method must return the object you wanted to create
 3. You can access the overrides passed in via options[:key]  (not really a rule!) 
 
