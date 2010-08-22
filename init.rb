@@ -1,2 +1,2 @@
-require 'crank_it'
+require 'cranky'
 

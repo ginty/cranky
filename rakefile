@@ -1,4 +1,6 @@
-require 'lib/cranky'
+$:.unshift File.expand_path("../lib", __FILE__)
+
+require 'cranky'
 require 'rubygems'
 require 'spec/rake/spectask'
 

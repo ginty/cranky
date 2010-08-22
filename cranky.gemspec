@@ -1,4 +1,7 @@
-require "lib/cranky"
+lib = File.expand_path('../lib/', __FILE__)
+$:.unshift lib unless $:.include?(lib)
+
+require "cranky/version"
 
 Gem::Specification.new do |gem|
   gem.name         = 'cranky'

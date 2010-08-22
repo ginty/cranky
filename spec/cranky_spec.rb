@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe Cranky do
+describe "The Cranky factory" do
 
   before(:each) do
   end
@@ -54,6 +54,13 @@ describe Cranky do
     b.role.should == :admin
   end
 
+  it "should give top priority to attributes defined at the top level, even when inheriting" do
+    a = Factory.build(:admin_manually, :role => :something_else)
+    a.role.should == :something_else
+    b = Factory.build(:admin_by_define, :role => :something_else)
+    b.role.should == :something_else
+  end
+
   it "should create unique values using the n method" do
     a = Factory.build(:user)  
     b = Factory.build(:user)  
@@ -66,33 +73,6 @@ describe Cranky do
   describe "debugger" do 
 
     it "should raise an error if the factory produces an invalid object when enabled (rails only)" do
-      Factory.debug = true
-      error = false
-      begin
-        Factory.build(:user)
-      rescue
-        error = true 
-      end
-      error.should == true
-      Factory.debug = false
-    end
-
-    it "can be run as a block" do
-      Factory.debug.should == false
-      error = false
-      Factory.debug do
-        begin
-          Factory.build(:user)
-        rescue
-          error = true 
-        end
-      end
-      error.should == true
-      Factory.debug.should == false
-    end
-
-    it "can be run inline" do
-      Factory.debug.should == false
       error = false
       begin
         Factory.debug(:user)
@@ -114,6 +94,20 @@ describe Cranky do
     Factory.build(:user, :name => lambda{"jimmy" + " cranky"}).name.should == "jimmy cranky"
     Factory.build(:user, :name => "jenny", :email => Proc.new{ |u| "#{u.name}@home.com" }).email.should == "jenny@home.com"
     Factory.build(:user, :name => Proc.new{"jimmy" + " cranky"}).name.should == "jimmy cranky"
+  end
+
+  it "allows factories to call other factories" do
+    Factory.build(:user_manually).address.city.should == "New York"
+    Factory.create(:user_manually).address.city.should == "New York"
+    Factory.create(:user_manually).address.saved?.should == false
+    Factory.build(:user_by_define).address.city.should == "New York"
+    Factory.create(:user_by_define).address.city.should == "New York"
+    Factory.create(:user_by_define).address.saved?.should == true
+  end
+
+  it "should also have its own syntax" do
+    crank(:user).saved?.should == false
+    crank!(:address).saved?.should == true
   end
   
 end

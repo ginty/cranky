@@ -29,7 +29,7 @@ You can create as many different factory files as you want, just require them in
 
 == In a Nutshell
 
-Cranky steals its core syntax from Factory Girl...
+Cranky steals its core syntax from Factory Girl and can drop into tests already written for that framework...
 
   Factory.build(:user)                  # Build a user instance without saving
   Factory.create(:user)                 # Build and save a user instance
@@ -50,7 +50,7 @@ Cranky has a nice debug option (rails only) to warn you when your factory is bro
 Cranky allows you to build factories via std Ruby methods, like this...
 
   # factories/my_factories.rb
-  class Cranky          # Your factory must use the Cranky class
+  class Cranky::Factory     # Your factory must extend Cranky::Factory
 
     # Simple factory method to create a user instance, you would call this via Factory.build(:user)
     def user
@@ -89,14 +89,14 @@ This is where Cranky really shines, if you can create Ruby methods you can prett
 
 The only rules are:
 
-1. Your factory must use the +Cranky+ class
+1. Your factory must extend the +Cranky::Factory+ class
 2. Your factory method must return the object you wanted to create
 3. You can access the overrides passed in via options[:key]  (not really a rule!) 
 
 So for example to create a simple user factory...
 
   # factories/my_factories.rb
-  class Cranky
+  class Cranky::Factory
 
     # Simple factory method to create a user instance, you would call this via Factory.build(:user)
     def user
@@ -114,7 +114,7 @@ Now of course you are working in straight Ruby here, so you can extend this any 
 For example here it is with the capability to automatically create a default address association...
 
   # factories/my_factories.rb
-  class Cranky
+  class Cranky::Factory
 
     # Return the default address if it already exists, or call the address factory to make one
     def default_address
@@ -235,17 +235,8 @@ Clear all instance variables in the factory. This may be useful to run between t
 
 Sometimes it is useful to be warned that your factory is generating invalid instances (although quite often your tests may intentionally generate invalid instances, so use this with care). By turning on debug the Factory will raise an error if the generated instance is invalid...
 
-  Factory.debug = true
-
-Or run within a block...
-
-  Factory.debug do
-    Factory.build(:user)
-  end
-
-Or inline (runs the build method with debug enabled)...
-
-  Factory.debug(:user) 
+  Factory.debug(:user)   
+  Factory.debug!(:user) 
 
 Note that this relies on the instance having a valid? method, so in practice this may only work with Rails.
 

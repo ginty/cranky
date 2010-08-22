@@ -2,14 +2,8 @@ require 'rubygems'
 require 'spec'
 require 'cranky'
 
-# A basic model to crank out
-class User
-  attr_accessor :name
-  attr_accessor :role
-  attr_accessor :email
-  attr_accessor :unique
-  attr_accessor :argument_received
 
+class TestClass
   def save
     @saved = true
   end
@@ -29,11 +23,26 @@ class User
   def attributes
     self.instance_variables
   end
+end
 
+# A basic model to crank out
+class User < TestClass
+  attr_accessor :name
+  attr_accessor :role
+  attr_accessor :email
+  attr_accessor :unique
+  attr_accessor :argument_received
+  attr_accessor :address
+end
+
+
+class Address < TestClass
+  attr_accessor :address
+  attr_accessor :city
 end
 
 # Some basic factory methods
-class Cranky
+class Cranky::Factory
 
   attr_accessor :some_instance_variable
 
@@ -43,6 +52,7 @@ class Cranky
     u.role = options[:role] || :user
     u.unique = "value#{n}"
     u.email = "fred@home.com"
+    u.address = Factory.build(:address)
     u
   end
 
@@ -51,7 +61,8 @@ class Cranky
                :name => "Fred",
                :role => :user,
                :unique => "value#{n}",
-               :email => "fred@home.com"
+               :email => "fred@home.com",
+               :address => Factory.create(:address)
     u.argument_received = true if options[:argument_supplied]
     u
   end
@@ -63,6 +74,11 @@ class Cranky
 
   def admin_by_define
     inherit(:user_by_define, :role => :admin)
+  end
+
+  def address
+    define :address => "25 Wisteria Lane",
+           :city => "New York"
   end
 
 end
