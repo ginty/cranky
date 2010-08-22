@@ -235,8 +235,8 @@ Clear all instance variables in the factory. This may be useful to run between t
 
 Sometimes it is useful to be warned that your factory is generating invalid instances (although quite often your tests may intentionally generate invalid instances, so use this with care). By turning on debug the Factory will raise an error if the generated instance is invalid...
 
-  Factory.debug(:user)   
-  Factory.debug!(:user) 
+  Factory.debug(:user)   # A replacement for Factory.build, with validation warnings enabled
+  Factory.debug!(:user)  # Likewise for Factory.create
 
 Note that this relies on the instance having a valid? method, so in practice this may only work with Rails.
 
