@@ -50,7 +50,7 @@ Cranky has a nice debug option (rails only) to warn you when your factory is bro
 Cranky allows you to build factories via std Ruby methods, like this...
 
   # factories/my_factories.rb
-  class Cranky::Factory     # Your factory must extend Cranky::Factory
+  class Cranky::Factory     # Your factory must reopen Cranky::Factory
 
     # Simple factory method to create a user instance, you would call this via Factory.build(:user)
     def user
@@ -89,7 +89,7 @@ This is where Cranky really shines, if you can create Ruby methods you can prett
 
 The only rules are:
 
-1. Your factory must extend the Cranky::Factory class
+1. Your factory must reopen the Cranky::Factory class
 2. Your factory method must return the object you wanted to create
 3. You can access the overrides passed in via options[:key]  (not really a rule!) 
 
