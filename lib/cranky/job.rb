@@ -20,7 +20,7 @@ module Cranky
     end
 
     def execute
-      item = get_constant(attributes[:class] ? attributes[:class] : @target).new
+      item = get_constant(attributes[:class] ? attributes.delete(:class) : @target).new
       # Assign all explicit attributes first
       values = attributes.reject { |attribute, value| value.respond_to?("call") }
       blocks = attributes.select { |attribute, value| value.respond_to?("call") }

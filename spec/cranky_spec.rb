@@ -119,6 +119,7 @@ describe "The Cranky factory" do
   it "should be capable of creating user hashes" do
     Factory.build(:user_hash)[:name].should == "Fred"
     Factory.build(:user_hash)[:role].should == :user
+    Factory.build(:user_hash)[:class].should be_nil
   end
 
   it "should be capable of overriding user hashes" do
