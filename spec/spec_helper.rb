@@ -86,6 +86,11 @@ class Cranky::Factory
            :valid => true
   end
 
+  def user_hash
+    define :class => Hash,
+           :name => "Fred",
+           :role => :user
+  end
 end
 
 
