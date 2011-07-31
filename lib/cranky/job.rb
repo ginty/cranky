@@ -43,6 +43,8 @@ module Cranky
 
       # Nicked from here: http://gist.github.com/301173
       def get_constant(name_sym)
+        return name_sym if name_sym.is_a? Class
+
         name = name_sym.to_s.split('_').collect {|s| s.capitalize }.join('')
         Object.const_defined?(name) ? Object.const_get(name) : Object.const_missing(name)
       end
