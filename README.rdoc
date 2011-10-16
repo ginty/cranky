@@ -1,6 +1,7 @@
 = Cranky
 
-Cranky is a fixtures replacement inspired by the excellent Factory Girl, but simpler and with less magic going on.
+Cranky is a fixtures replacement inspired by the excellent Factory Girl but with easier syntax and no external
+dependencies, it will work straight out of the box with rails 10.
 
 In short use this if you want to quickly and naturally create factory methods that you feel 100% in control of.
 
@@ -10,10 +11,7 @@ First install the gem...
 
   gem install cranky
 
-Or for rails stick it in your environment.rb or Gemfile as normal...
-
-  # environment.rb
-  config.gem "cranky"
+Or with bundler...
 
   # Gemfile
   gem "cranky"
@@ -29,7 +27,14 @@ You can create as many different factory files as you want, just require them in
 
 == In a Nutshell
 
-Cranky steals its core syntax from Factory Girl and can drop into tests already written for that framework...
+The API to use in your tests is:
+
+  crank(:user)                  # Build a user instance without saving
+  crank!(:user)                 # Build and save a user instance
+  crank(:user, :name => "Ian")  # Override a default attribute value
+  crank(:user_attrs)            # Return a set of valid attributes rather than the object
+
+Alternatively the Factory Girl syntax also works and therefore Cranky can drop into tests already written for that framework...
 
   Factory.build(:user)                  # Build a user instance without saving
   Factory.create(:user)                 # Build and save a user instance

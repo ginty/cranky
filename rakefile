@@ -18,20 +18,14 @@ task :release_tag do
   system "git tag -a v#{Cranky::VERSION} -m 'version #{Cranky::VERSION}'"
 end
 
-# Push to github
-desc "Push to Github"
-task :push do
-  system "git push --tags origin master"
-end
-
 desc "Build the gem"
 task :build do
-  system "gem build cranky.gemspec"
+  system "bundle exec gem build cranky.gemspec"
 end
  
 desc "Release version #{Cranky::VERSION}"
 task :release => [:build, :release_tag, :push] do
-  system "gem push cranky-#{Cranky::VERSION}.gem"
+  system "bundle exec gem push cranky-#{Cranky::VERSION}.gem"
 end
 
 
