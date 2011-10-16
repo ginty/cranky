@@ -24,7 +24,7 @@ task :build do
 end
  
 desc "Release version #{Cranky::VERSION}"
-task :release => [:build, :release_tag, :push] do
+task :release => [:build, :release_tag] do
   system "bundle exec gem push cranky-#{Cranky::VERSION}.gem"
 end
 
