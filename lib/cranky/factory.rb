@@ -31,7 +31,7 @@ module Cranky
     end
 
     def attributes_for(what, attrs={})
-      build(what, attrs).attributes
+      build(what, attrs.merge(:_return_attributes => true))
     end
 
     # Can be left in your tests as an alternative to build and to warn if your factory method 
@@ -68,6 +68,10 @@ module Cranky
 
       # Execute the requested factory method, crank out the target object!
       def crank_it(what, overrides)
+        if what.to_s =~ /(.*)_attrs$/
+          what = $1
+          overrides = overrides.merge(:_return_attributes => true)
+        end
         item = "TBD"
         new_job(what, overrides) do
           item = self.send(what)        # Invoke the factory method

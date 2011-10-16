@@ -2,6 +2,18 @@
 
 ## 0.3.0
 
+* Updated README to present the crank syntax as the default
+
+* Appending the first argument with _attrs will return a hash of attributes rather than
+  the object, i.e. crank(:user) returns a User instance, and crank(:user_attrs) returns
+  a hash of valid attributes
+
+* Factory.attributes_for now returns a hash of attributes rather than an array, this
+  method is no longer dependent on rails
+
+* \#3 Factory methods can generate attribute hashes by default by setting :class => Hash in 
+  the define declaration (leemhenson)
+
 * Factory.debug was broken on ActiveModel based classes, now works with them
 
 * Attributes can be skipped by setting the value to :skip. e.g. crank(:user, :name => :skip) will

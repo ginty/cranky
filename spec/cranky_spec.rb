@@ -5,19 +5,21 @@ describe "The Cranky factory" do
   before(:each) do
   end
 
-  it "should be alive" do
+  it "is alive" do
     Factory.build(:user).class.should == User
   end
 
-  it "should not save the item when generated via build" do 
+  it "does not save the item when generated via build or crank" do 
     Factory.build(:user).saved?.should == false
+    crank(:user).saved?.should == false
   end
 
-  it "should save the item when generated via create" do 
+  it "does save the item when generated via create or crank!" do 
     Factory.create(:user).saved?.should == true
+    crank!(:user).saved?.should == true
   end
 
-  it "should allow all attributes to be overriden in the call" do
+  it "allows all attributes to be overriden in the call" do
     u = Factory.build(:user, :name => "Indy", :email => "indy@home.com", :role => :dog, :unique => :yep)
     u.name.should == "Indy"
     u.email.should == "indy@home.com"
@@ -25,19 +27,18 @@ describe "The Cranky factory" do
     u.unique.should == :yep
   end
 
-  it "should return valid attributes rather than the model (rails only)" do
-    attrs = Factory.attributes_for(:user)
-    attrs.class.should == Array
+  it "returns valid attributes rather than the model" do
+    Factory.attributes_for(:user).class.should == Hash
   end
 
-  it "should clear all instance variables when reset" do
+  it "clears all instance variables when reset" do
     Factory.some_instance_variable = true
     Factory.some_instance_variable.should == true
     Factory.reset
     Factory.some_instance_variable.should == nil
   end
 
-  it "should be able to create items using the define helper or manually" do
+  it "can create items using the define helper or manually" do
     m = Factory.build(:user_manually)
     d = Factory.build(:user_by_define)
     m.name.should ==  d.name
@@ -45,7 +46,7 @@ describe "The Cranky factory" do
     m.role.should ==  d.role
   end
 
-  it "should be able to build by inheriting and overriding from other methods" do
+  it "can build by inheriting and overriding from other methods" do
     a = Factory.build(:admin_manually)
     a.name.should == "Fred"
     a.role.should == :admin
@@ -54,14 +55,14 @@ describe "The Cranky factory" do
     b.role.should == :admin
   end
 
-  it "should give top priority to attributes defined at the top level, even when inheriting" do
+  it "gives top priority to attributes defined at the top level, even when inheriting" do
     a = Factory.build(:admin_manually, :role => :something_else)
     a.role.should == :something_else
     b = Factory.build(:admin_by_define, :role => :something_else)
     b.role.should == :something_else
   end
 
-  it "should create unique values using the n method" do
+  it "creates unique values using the n method" do
     a = Factory.build(:user)  
     b = Factory.build(:user)  
     c = Factory.build(:user)  
@@ -72,7 +73,7 @@ describe "The Cranky factory" do
   
   describe "debugger" do 
 
-    it "should raise an error if the factory produces an invalid object when enabled (rails only)" do
+    it "raises an error if the factory produces an invalid object when enabled (rails only)" do
       error = false
       begin
         Factory.debug(:user, :valid => false)
@@ -82,7 +83,7 @@ describe "The Cranky factory" do
       error.should == true
     end
 
-    it "should have debug work like build and create when there are no errors" do
+    it "debug works like build and create when there are no errors" do
       Factory.debug(:user).class.should == User
       Factory.debug(:user).saved?.should == false
       Factory.debug!(:user).saved?.should == true
@@ -90,12 +91,12 @@ describe "The Cranky factory" do
 
   end
 
-  it "should allow arguments to be passed in the overrides hash" do
+  it "allows arguments to be passed in the overrides hash" do
     Factory.build(:user).argument_received.should == nil
     Factory.build(:user, :argument_supplied => true).argument_received.should == true
   end
 
-  it "should allow blocks to be passed into the define method" do
+  it "allows blocks to be passed into the define method" do
     Factory.build(:user, :name => "jenny", :email => lambda{ |u| "#{u.name}@home.com" }).email.should == "jenny@home.com"
     Factory.build(:user, :name => lambda { |u| "jimmy" + " cranky" }).name.should == "jimmy cranky"
     Factory.build(:user, :name => "jenny", :email => Proc.new{ |u| "#{u.name}@home.com" }).email.should == "jenny@home.com"
@@ -111,10 +112,33 @@ describe "The Cranky factory" do
     Factory.create(:user_by_define).address.saved?.should == true
   end
 
-  it "should also have its own syntax" do
+  it "has its own syntax" do
     crank(:user).saved?.should == false
     crank!(:address).saved?.should == true
   end
-  
+
+  it "is capable of creating user hashes" do
+    Factory.build(:user_hash)[:name].should == "Fred"
+    Factory.build(:user_hash)[:role].should == :user
+    Factory.build(:user_hash)[:class].should be_nil
+  end
+
+  it "is capable of overriding user hashes" do
+    Factory.build(:user_hash, :role => :admin)[:role].should == :admin
+  end
+
+  specify "attributes are not assigned when they have the value :skip" do
+    crank(:user, :name => :skip).name.should_not be
+  end
+
+  it "returns an hash of attributes when the 1st argument is appended with _attrs" do
+    crank(:user_attrs).class.should == Hash
+    crank(:user_attrs, :name => "Yo")[:name].should == "Yo"
+  end
+
+  it "returns nothing extra in the attributes" do
+    crank(:user_attrs).size.should == 6
+  end
+
 end
 
