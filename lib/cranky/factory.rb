@@ -39,7 +39,12 @@ module Cranky
     def debug(*args)
       item = build(*args) 
       if !item.valid?
-        raise "Oops, the #{item.class} created by the Factory has the following errors: #{item.errors}"
+        if item.errors.respond_to?("messages")
+          errors = item.errors.messages
+        else
+          errors = item.errors
+        end
+        raise "Oops, the #{item.class} created by the Factory has the following errors: #{errors}"
       end
       item
     end

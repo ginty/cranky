@@ -23,7 +23,9 @@ module Cranky
       item = get_constant(attributes[:class] ? attributes[:class] : @target).new
       # Assign all explicit attributes first
       attributes.each do |attribute, value|
-        item.send("#{attribute}=", value) if item.respond_to?("#{attribute}=") && !value.respond_to?("call")
+        unless value == :skip
+          item.send("#{attribute}=", value) if item.respond_to?("#{attribute}=") && !value.respond_to?("call")
+        end
       end
       # Then call any blocks
       attributes.each do |attribute, value|
