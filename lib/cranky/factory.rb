@@ -62,10 +62,6 @@ module Cranky
         @n += 1
       end
 
-      def inherit(what, overrides={})
-        build(what, overrides.merge(options))
-      end
-
       # Execute the requested factory method, crank out the target object!
       def crank_it(what, overrides)
         if what.to_s =~ /(.*)_attrs$/
@@ -84,6 +80,12 @@ module Cranky
       def define(defaults={})
         current_job.defaults = defaults   
         current_job.execute
+      end
+
+      def inherit(what, overrides={})
+        overrides = overrides.merge(options)
+        overrides = overrides.merge(:_return_attributes => true) if current_job.return_attributes
+        build(what, overrides)
       end
 
       def current_job

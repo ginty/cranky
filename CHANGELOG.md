@@ -1,5 +1,10 @@
 # Overview of Changes
 
+## 0.3.1
+
+* Bugfix, generating a hash of attributes via _attrs did not work with factory methods
+  that used the inherit method
+
 ## 0.3.0
 
 * Updated README to present the crank syntax as the default

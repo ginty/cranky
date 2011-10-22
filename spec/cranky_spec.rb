@@ -140,5 +140,9 @@ describe "The Cranky factory" do
     crank(:user_attrs).size.should == 6
   end
 
+  specify "attributes for works with factory methods using inherit" do
+    crank(:admin_by_define_attrs).class.should == Hash
+  end
+
 end
 

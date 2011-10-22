@@ -2,7 +2,7 @@ module Cranky
   class Job
 
     attr_writer :defaults
-    attr_reader :overrides
+    attr_reader :overrides, :return_attributes
 
     def initialize(target, overrides={})
       @defaults = {}
