@@ -29,17 +29,21 @@ You can create as many different factory files as you want, just require them in
 
 The API to use in your tests is:
 
-  crank(:user)                  # Build a user instance without saving
-  crank!(:user)                 # Build and save a user instance
-  crank(:user, :name => "Ian")  # Override a default attribute value
-  crank(:user_attrs)            # Return a set of valid attributes rather than the object
+~~~ruby
+crank(:user)                  # Build a user instance without saving
+crank!(:user)                 # Build and save a user instance
+crank(:user, :name => "Ian")  # Override a default attribute value
+crank(:user_attrs)            # Return a set of valid attributes rather than the object
+~~~
 
 Alternatively the Factory Girl syntax also works and therefore Cranky can drop into tests already written for that framework...
 
-  Factory.build(:user)                  # Build a user instance without saving
-  Factory.create(:user)                 # Build and save a user instance
-  Factory.build(:user, :name => "Ian")  # Override a default attribute value
-  Factory.attributes_for(:user)         # Return a set of valid attributes rather than the object
+~~~ruby
+Factory.build(:user)                  # Build a user instance without saving
+Factory.create(:user)                 # Build and save a user instance
+Factory.build(:user, :name => "Ian")  # Override a default attribute value
+Factory.attributes_for(:user)         # Return a set of valid attributes rather than the object
+~~~
 
 Or if you're coming from Machinist, you can make your Cranky factories drop into your existing tests by setting up make and make! methods as shown here.[http://gist.github.com/525653]
 
