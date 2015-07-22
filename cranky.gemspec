@@ -11,7 +11,7 @@ Gem::Specification.new do |gem|
   gem.description  = "A very light yet powerful test factory framework with an extremely clean syntax that makes it very easy to define your factories."
                    
   gem.author       = "Stephen McGinty"
-  gem.email        = "ginty@hyperdecade.com"
+  gem.email        = "stephen.f.mcginty@gmail.com"
   gem.homepage     = "http://github.com/ginty/cranky"
                    
   gem.files        = Dir["{lib,spec}/**/*", "[A-Z]*", "init.rb"]
