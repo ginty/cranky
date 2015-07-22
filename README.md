@@ -1,31 +1,37 @@
-= Cranky
+# Cranky
 
 Cranky is a fixtures replacement inspired by the excellent Factory Girl but with easier syntax and no external
 dependencies, it will work straight out of the box with rails 10.
 
 In short use this if you want to quickly and naturally create factory methods that you feel 100% in control of.
 
-== Install
+## Install
 
 First install the gem...
 
-  gem install cranky
+~~~
+gem install cranky
+~~~
 
 Or with bundler...
 
-  # Gemfile
-  gem "cranky"
+~~~ruby
+# Gemfile
+gem "cranky"
+~~~
 
 Then in your spec_helper.rb ...
 
-  # spec_helper.rb
-  require "cranky"
-  require "factories/my_factories"
+~~~ruby
+# spec_helper.rb
+require "cranky"
+require "factories/my_factories"
+~~~
 
 The above assumes that you have created your factory methods in a file called my_factories.rb in the spec/factories directory.
 You can create as many different factory files as you want, just require them in the same way.
 
-== In a Nutshell
+## In a Nutshell
 
 The API to use in your tests is:
 
@@ -49,50 +55,54 @@ Or if you're coming from Machinist, you can make your Cranky factories drop into
 
 Cranky has a nice debug option (rails only) to warn you when your factory is broken, recommend you do this for your first spec...
 
-  describe User do
-    it "should have a working factory" do
-      # This will raise an error and report the validation errors should they occur
-      Factory.debug(:user).should be_valid
-    end
+~~~ruby
+describe User do
+  it "should have a working factory" do
+    # This will raise an error and report the validation errors should they occur
+    Factory.debug(:user).should be_valid
   end
+end
+~~~
 
 Cranky allows you to build factories via std Ruby methods, like this...
 
-  # factories/my_factories.rb
-  class Cranky::Factory     # Your factory must reopen Cranky::Factory
+~~~ruby
+# factories/my_factories.rb
+class Cranky::Factory     # Your factory must reopen Cranky::Factory
 
-    # Simple factory method to create a user instance, you would call this via Factory.build(:user)
-    def user
-      # Define attributes via a hash, generate the values any way you want
-      define :name    => "Jimmy",               
-             :email   => "jimmy#{n}@home.com",   # An 'n' counter method is available to help make things unique
-             :role    => "pleb",
-             :address => default_address         # Call your own helper methods to wire up your associations
-    end
-
-    # Easily create variations via the inherit helper, callable via Factory.build(:admin)
-    def admin
-      inherit(:user, :role => "admin")
-    end
-
-    # Return a default address if it already exists, or call the address factory to make one
-    def default_address
-      @default_address ||= create(:address) 
-    end
-
-    # Alternatively loose the DSL altogether and define the factory yourself, still callable via Factory.build(:address)
-    def address
-      a = Address.new
-      a.street = "192 Broadway"
-      a.city = options[:city] || "New York"   # You can get any caller overrides via the options hash
-      a                                       # Only rule is the method must return the generated object 
-    end
-
+  # Simple factory method to create a user instance, you would call this via Factory.build(:user)
+  def user
+    # Define attributes via a hash, generate the values any way you want
+    define :name    => "Jimmy",               
+           :email   => "jimmy#{n}@home.com",   # An 'n' counter method is available to help make things unique
+           :role    => "pleb",
+           :address => default_address         # Call your own helper methods to wire up your associations
   end
 
-= Details
+  # Easily create variations via the inherit helper, callable via Factory.build(:admin)
+  def admin
+    inherit(:user, :role => "admin")
+  end
 
-== Define Your Factories
+  # Return a default address if it already exists, or call the address factory to make one
+  def default_address
+    @default_address ||= create(:address) 
+  end
+  
+  # Alternatively loose the DSL altogether and define the factory yourself, still callable via Factory.build(:address)
+  def address
+    a = Address.new
+    a.street = "192 Broadway"
+    a.city = options[:city] || "New York"   # You can get any caller overrides via the options hash
+    a                                       # Only rule is the method must return the generated object 
+  end
+
+end
+~~~
+
+# Details
+
+## Define Your Factories
 
 This is where Cranky really shines, if you can create Ruby methods you can pretty much create your factories without having to refer to the syntax documentation ever again.
 
@@ -104,83 +114,93 @@ The only rules are:
 
 So for example to create a simple user factory...
 
-  # factories/my_factories.rb
-  class Cranky::Factory
+~~~ruby
+# factories/my_factories.rb
+class Cranky::Factory
 
-    # Simple factory method to create a user instance, you would call this via Factory.build(:user)
-    def user
-      u       = User.new
-      u.name  = options[:name] || "Jimmy"                 # Use the passed in name if present, or the default
-      u.email = options[:email] || "jimmy#{n}@home.com"   # Give each user a unique email address
-      u.role  = options[:role] || "pleb"
-      u
-    end
-
+  # Simple factory method to create a user instance, you would call this via Factory.build(:user)
+  def user
+    u       = User.new
+    u.name  = options[:name] || "Jimmy"                 # Use the passed in name if present, or the default
+    u.email = options[:email] || "jimmy#{n}@home.com"   # Give each user a unique email address
+    u.role  = options[:role] || "pleb"
+    u
   end
+
+end
+~~~
 
 Now of course you are working in straight Ruby here, so you can extend this any way you want as long as you follow the above rules. 
 
 For example here it is with the capability to automatically create a default address association...
 
-  # factories/my_factories.rb
-  class Cranky::Factory
-
-    # Return the default address if it already exists, or call the address factory to make one
-    def default_address
-      @default_address ||= create(:address) 
-    end
-
-    def user
-      u         = User.new
-      u.name    = options[:name] || "Jimmy"
-      u.email   = options[:email] || "jimmy#{n}@home.com"
-      u.role    = options[:role] || "pleb"
-      u.address = default_address
-      u
-    end
-
-    ... # Create the address factory in the same way
-
-  end
-
-Quite often the database will be cleared between tests but the instance variable in the factory will not necessarily be reset which could lead to problems if the tests check for the associated record in the database.
-So a nice tip is to implement default associations like this (assuming you're using Rails)...
+~~~ruby
+# factories/my_factories.rb
+class Cranky::Factory
 
   # Return the default address if it already exists, or call the address factory to make one
   def default_address
-    # If the default address exists, but has been cleared from the database...
-    @default_address = nil if @default_address && !Address.exists?(@default_address.id)
     @default_address ||= create(:address) 
   end
-
-You can pass additional arguments to your factories via the overrides hash...
-
-  Factory.build(:user, :new_address => true)
 
   def user
     u         = User.new
     u.name    = options[:name] || "Jimmy"
     u.email   = options[:email] || "jimmy#{n}@home.com"
     u.role    = options[:role] || "pleb"
-    u.address = options[:new_address] ? create(:address) : default_address
+    u.address = default_address
     u
   end
 
-== Helpers
+  # Create the address factory in the same way
+
+end
+~~~
+
+Quite often the database will be cleared between tests but the instance variable in the factory will not necessarily be reset which could lead to problems if the tests check for the associated record in the database.
+So a nice tip is to implement default associations like this (assuming you're using Rails)...
+
+~~~ruby
+# Return the default address if it already exists, or call the address factory to make one
+def default_address
+  # If the default address exists, but has been cleared from the database...
+  @default_address = nil if @default_address && !Address.exists?(@default_address.id)
+  @default_address ||= create(:address) 
+end
+~~~
+
+You can pass additional arguments to your factories via the overrides hash...
+
+~~~ruby
+Factory.build(:user, :new_address => true)
+
+def user
+  u         = User.new
+  u.name    = options[:name] || "Jimmy"
+  u.email   = options[:email] || "jimmy#{n}@home.com"
+  u.role    = options[:role] || "pleb"
+  u.address = options[:new_address] ? create(:address) : default_address
+  u
+end
+~~~
+
+## Helpers
 
 Of course its nice to get some help...
 
-=== Define
+### Define
 
 Most of your factories are likely to simply define a list of mimimum attribute values, use the define helper for this. 
 
-  # The user factory re-written using the define helper
-  def user
-    define :name    => "Jimmy",
-           :email   => "jimmy#{n}@home.com",
-           :role    => "pleb",
-           :address => default_address
-  end
+~~~ruby
+# The user factory re-written using the define helper
+def user
+  define :name    => "Jimmy",
+         :email   => "jimmy#{n}@home.com",
+         :role    => "pleb",
+         :address => default_address
+end
+~~~
 
 Note that you don't have to worry about handling the overrides here, they will be applied automatically if present, just define the defaults.
 
@@ -188,82 +208,96 @@ The define argument is just a regular hash, you have complete freedom to choose 
 
 If you like you can generate attributes with a block:
 
-  def user
-    define :name    => "Jimmy",
-           :email   => lambda{|u| "#{u.name.downcase}@home.com"},
-           :role    => "pleb",
-           :address => default_address
-  end
+~~~ruby
+def user
+  define :name    => "Jimmy",
+         :email   => lambda{|u| "#{u.name.downcase}@home.com"},
+         :role    => "pleb",
+         :address => default_address
+end
+~~~
 
 The define method will return the object, you can grab this for additional manipulation as you would expect...
 
-  def user
-    u = define :name    => "Jimmy",
-               :email   => "jimmy#{n}@home.com",
-               :role    => "pleb",
-               :address => default_address
-    u.do_something
-    u               # Remember to return it at the end
-  end
+~~~ruby
+def user
+  u = define :name    => "Jimmy",
+             :email   => "jimmy#{n}@home.com",
+             :role    => "pleb",
+             :address => default_address
+  u.do_something
+  u               # Remember to return it at the end
+end
+~~~
 
 If for any reason you want to have your factory method named differently from the model it instantiates you can pass in a :class attribute to the define method...
 
-  # Called via Factory.create(:jimmy)
-  def jimmy
-    u = define :class   => :user, 
-               :name    => "Jimmy",
-               :email   => "jimmy#{n}@home.com",
-               :role    => "pleb",
-               :address => default_address
-  end
+~~~ruby
+# Called via Factory.create(:jimmy)
+def jimmy
+  u = define :class   => :user, 
+             :name    => "Jimmy",
+             :email   => "jimmy#{n}@home.com",
+             :role    => "pleb",
+             :address => default_address
+end
+~~~
 
-=== Inherit
+### Inherit
 
 You can inherit from other factories via the inherit method. So for example to create an admin user you might do...
 
-  # Called via Factory.create(:admin)
-  def admin
-    inherit(:user, :role => "admin")  # Pass in any attribute overrides you want
-  end
+~~~ruby
+# Called via Factory.create(:admin)
+def admin
+  inherit(:user, :role => "admin")  # Pass in any attribute overrides you want
+end
+~~~
 
-=== Unique Attributes (n)
+### Unique Attributes (n)
 
 If you want to generate unique attributes you can call the n method which will automatically increment the next time it is called.
 
 Note that every time n is called it will increment, it does not implement a unique counter per attribute.
 
-=== Reset
+### Reset
 
 Clear all instance variables in the factory. This may be useful to run between tests depending on your factory logic...
 
-  before(:each) do
-    Factory.reset
-  end
+~~~ruby
+before(:each) do
+  Factory.reset
+end
+~~~
 
-=== Debug
+### Debug
 
 Sometimes it is useful to be warned that your factory is generating invalid instances (although quite often your tests may intentionally generate invalid instances, so use this with care). By turning on debug the Factory will raise an error if the generated instance is invalid...
 
-  Factory.debug(:user)   # A replacement for Factory.build, with validation warnings enabled
-  Factory.debug!(:user)  # Likewise for Factory.create
+~~~ruby
+Factory.debug(:user)   # A replacement for Factory.build, with validation warnings enabled
+Factory.debug!(:user)  # Likewise for Factory.create
+~~~
 
 Note that this relies on the instance having a valid? method, so in practice this may only work with Rails.
 
-=== Attributes For
+### Attributes For
 
 Returns the attributes that would be applied by a given factory method...
 
-  valid_attributes = Factory.attributes_for(:user)
+~~~ruby
+valid_attributes = Factory.attributes_for(:user)
+~~~
 
 Requires that the instance has an attributes method, so again may only work under Rails.
 
-== Additional Features
+## Additional Features
 
 Want any? Feel free to let me know.
 
-== Thanks
+## Thanks
 
-Cranky was inspired by factory_girl[http://github.com/thoughtbot/factory_girl] and miniskirt[http://gist.github.com/273579].
+Cranky was inspired by [factory_girl](http://github.com/thoughtbot/factory_girl) and [miniskirt](http://gist.github.com/273579).
 
 Thanks to both.
 
