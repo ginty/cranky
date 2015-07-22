@@ -51,7 +51,7 @@ Factory.build(:user, :name => "Ian")  # Override a default attribute value
 Factory.attributes_for(:user)         # Return a set of valid attributes rather than the object
 ~~~
 
-Or if you're coming from Machinist, you can make your Cranky factories drop into your existing tests by setting up make and make! methods as shown here.[http://gist.github.com/525653]
+Or if you're coming from Machinist, you can make your Cranky factories drop into your existing tests by setting up make and make! methods as [shown here](http://gist.github.com/525653).
 
 Cranky has a nice debug option (rails only) to warn you when your factory is broken, recommend you do this for your first spec...
 
