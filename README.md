@@ -110,7 +110,7 @@ The only rules are:
 
 1. Your factory must reopen the Cranky::Factory class
 2. Your factory method must return the object you wanted to create
-3. You can access the overrides passed in via options[:key]  (not really a rule!) 
+3. You can access the overrides passed in via options[:key]. (not really a rule!) 
 
 So for example to create a simple user factory...
 
