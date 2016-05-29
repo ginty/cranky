@@ -127,6 +127,15 @@ describe "The Cranky factory" do
     Factory.build(:user_hash, :role => :admin)[:role].should == :admin
   end
 
+  it "is capable of using traits" do
+    user = Factory.build(:user_manually, :traits => :manager)
+    user.role.should == :manager
+  end
+
+  it "raises exception if trait method is undefined" do
+    expect { Factory.build(:user_by_define, :traits => :manager) }.to raise_error("Invalid trait 'manager'! No method 'apply_trait_manager_to_user_by_define' is defined.")
+  end
+
   specify "attributes are not assigned when they have the value :skip" do
     crank(:user, :name => :skip).name.should_not be
   end

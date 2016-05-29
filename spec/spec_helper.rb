@@ -1,7 +1,7 @@
-require 'rubygems'
-require 'rspec'
-require 'cranky'
+require 'simplecov'
+SimpleCov.start
 
+require 'cranky'
 
 class TestClass
   attr_accessor :valid
@@ -90,6 +90,10 @@ class Cranky::Factory
     define :class => Hash,
            :name => "Fred",
            :role => :user
+  end
+
+  def apply_trait_manager_to_user_manually(user)
+    user.role = :manager
   end
 end
 
