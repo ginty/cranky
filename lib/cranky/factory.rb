@@ -58,6 +58,16 @@ module Cranky
 
     private
 
+      def apply_traits(what, item)
+        Array(options[:traits]).each do |t|
+          trait_method_name = "apply_trait_#{t}_to_#{what}"
+          fail("Invalid trait '#{t}'! No method '#{trait_method_name}' is defined.") unless respond_to?(trait_method_name)
+          send(trait_method_name, item)
+        end
+
+        item
+      end
+
       def n
         @n += 1
       end
@@ -71,6 +81,7 @@ module Cranky
         item = "TBD"
         new_job(what, overrides) do
           item = self.send(what)        # Invoke the factory method
+          item = apply_traits(what, item)
         end
         item
       end

@@ -184,6 +184,29 @@ def user
 end
 ~~~
 
+You can use traits...
+
+~~~ruby
+Factory.build(:user, traits: [:admin, :manager])
+
+def user
+  u         = User.new
+  u.name    = options[:name] || "Jimmy"
+  u.email   = options[:email] || "jimmy#{n}@home.com"
+  u.role    = options[:role] || "pleb"
+  u.address = options[:new_address] ? create(:address) : default_address
+  u
+end
+
+def apply_trait_admin_to_user(user)
+  user.roles << :admin
+end
+
+def apply_trait_manager_to_user(user)
+  user.roles << :manager
+end
+~~~
+
 ## Helpers
 
 Of course its nice to get some help...
