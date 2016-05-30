@@ -3,6 +3,10 @@ SimpleCov.start
 
 require 'cranky'
 
+RSpec.configure do |config|
+  config.expect_with(:rspec) { |c| c.syntax = :should }
+end
+
 class TestClass
   attr_accessor :valid
 
@@ -96,6 +100,3 @@ class Cranky::Factory
     user.role = :manager
   end
 end
-
-
-

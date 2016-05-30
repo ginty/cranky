@@ -133,7 +133,7 @@ describe "The Cranky factory" do
   end
 
   it "raises exception if trait method is undefined" do
-    expect { Factory.build(:user_by_define, :traits => :manager) }.to raise_error("Invalid trait 'manager'! No method 'apply_trait_manager_to_user_by_define' is defined.")
+    lambda { Factory.build(:user_by_define, :traits => :manager) }.should raise_error("Invalid trait 'manager'! No method 'apply_trait_manager_to_user_by_define' is defined.")
   end
 
   specify "attributes are not assigned when they have the value :skip" do
