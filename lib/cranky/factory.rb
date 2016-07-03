@@ -6,23 +6,23 @@ module Cranky
     def initialize
       # Factory jobs can be nested, i.e. a factory method can itself invoke another factory method to
       # build a dependent object. In this case jobs the jobs are pushed into a pipeline and executed
-      # in a last in first out order. 
+      # in a last in first out order.
       @pipeline = []
       @n = 0
       @errors = []
     end
-    
+
     def build(what, overrides={})
       crank_it(what, overrides)
     end
 
     def create(what, overrides={})
       item = build(what, overrides)
-      item.save
+      Array(item).each(&:save)
       item
     end
 
-    # Reset the factory instance, clear all instance variables 
+    # Reset the factory instance, clear all instance variables
     def reset
       self.instance_variables.each do |var|
         instance_variable_set(var, nil)
@@ -34,17 +34,18 @@ module Cranky
       build(what, attrs.merge(:_return_attributes => true))
     end
 
-    # Can be left in your tests as an alternative to build and to warn if your factory method 
-    # ever starts producing invalid instances 
+    # Can be left in your tests as an alternative to build and to warn if your factory method
+    # ever starts producing invalid instances
     def debug(*args)
-      item = build(*args) 
-      if !item.valid?
-        if item.errors.respond_to?("messages")
-          errors = item.errors.messages
+      item = build(*args)
+      invalid_item = Array(item).find(&:invalid?)
+      if invalid_item
+        if invalid_item.errors.respond_to?(:messages)
+          errors = invalid_item.errors.messages
         else
-          errors = item.errors
+          errors = invalid_item.errors
         end
-        raise "Oops, the #{item.class} created by the Factory has the following errors: #{errors}"
+        raise "Oops, the #{invalid_item.class} created by the Factory has the following errors: #{errors}"
       end
       item
     end
@@ -86,10 +87,10 @@ module Cranky
         item
       end
 
-      # This method actually makes the required object instance, it gets called by the users factory 
+      # This method actually makes the required object instance, it gets called by the users factory
       # method, where the name 'define' makes more sense than it does here!
       def define(defaults={})
-        current_job.defaults = defaults   
+        current_job.defaults = defaults
         current_job.execute
       end
 
@@ -100,7 +101,7 @@ module Cranky
       end
 
       def current_job
-        @pipeline.last  
+        @pipeline.last
       end
 
       # Returns a hash containing any top-level overrides passed in when the current factory was invoked
@@ -108,7 +109,7 @@ module Cranky
         current_job.overrides
       end
 
-      # Adds a new job to the pipeline then yields to the caller to execute it 
+      # Adds a new job to the pipeline then yields to the caller to execute it
       def new_job(what, overrides)
         @pipeline << Job.new(what, overrides)
         yield

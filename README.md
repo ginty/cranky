@@ -207,6 +207,16 @@ def apply_trait_manager_to_user(user)
 end
 ~~~
 
+You can create collections...
+
+~~~ruby
+Factory.create(:users_collection)
+
+def users_collection
+  3.time.map { build(:user) }
+end
+~~~
+
 ## Helpers
 
 Of course its nice to get some help...

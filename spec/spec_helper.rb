@@ -96,6 +96,10 @@ class Cranky::Factory
            :role => :user
   end
 
+  def users_collection
+    3.times.map { build(:user) }
+  end
+
   def apply_trait_manager_to_user_manually(user)
     user.role = :manager
   end
