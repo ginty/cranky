@@ -1,6 +1,7 @@
 source "http://gemcutter.org"
 
 group :development do
+  gem "activemodel"
   gem "rake"
   gem "gemcutter"
 end

@@ -79,19 +79,15 @@ describe "The Cranky factory" do
   describe "debugger" do 
 
     it "raises an error if the factory produces an invalid object when enabled (rails only)" do
-      error = false
-      begin
-        Factory.debug(:user, :valid => false)
-      rescue
-        error = true 
-      end
-      error.should == true
+      expect { Factory.debug(:user) }.to raise_error(
+        'Oops, the User created by the Factory has the following errors: {:required_attr=>["can\'t be blank"]}'
+      )
     end
 
     it "debug works like build and create when there are no errors" do
-      Factory.debug(:user).class.should == User
-      Factory.debug(:user).saved?.should == false
-      Factory.debug!(:user).saved?.should == true
+      Factory.debug(:user, required_attr: true).class.should == User
+      Factory.debug(:user, required_attr: true).saved?.should == false
+      Factory.debug!(:user, required_attr: true).saved?.should == true
     end
 
   end
@@ -151,7 +147,7 @@ describe "The Cranky factory" do
   end
 
   it "returns nothing extra in the attributes" do
-    crank(:user_attrs).size.should == 6
+    crank(:user_attrs).size.should == 5
   end
 
   specify "attributes for works with factory methods using inherit" do

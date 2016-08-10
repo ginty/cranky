@@ -2,13 +2,18 @@ require 'simplecov'
 SimpleCov.start
 
 require 'cranky'
+require 'active_model'
 
 RSpec.configure do |config|
   config.expect_with(:rspec) { |c| c.syntax = :should }
 end
 
 class TestClass
-  attr_accessor :valid
+  include ActiveModel::Validations
+
+  attr_accessor :required_attr
+
+  validates_presence_of :required_attr
 
   def save
     @saved = true
@@ -16,14 +21,6 @@ class TestClass
 
   def saved?
     !!@saved
-  end
-
-  def valid?
-    @valid
-  end
-
-  def errors
-    "some validation errors"
   end
 
   def attributes
@@ -59,7 +56,6 @@ class Cranky::Factory
     u.unique = "value#{n}"
     u.email = "fred@home.com"
     u.address = Factory.build(:address)
-    u.valid = true
     u
   end
 
@@ -69,8 +65,7 @@ class Cranky::Factory
                :role => :user,
                :unique => "value#{n}",
                :email => "fred@home.com",
-               :address => Factory.create(:address),
-               :valid => true
+               :address => Factory.create(:address)
     u.argument_received = true if options[:argument_supplied]
     u
   end
@@ -86,8 +81,7 @@ class Cranky::Factory
 
   def address
     define :address => "25 Wisteria Lane",
-           :city => "New York",
-           :valid => true
+           :city => "New York"
   end
 
   def user_hash
