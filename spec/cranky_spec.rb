@@ -19,6 +19,11 @@ describe "The Cranky factory" do
     crank!(:user).saved?.should == true
   end
 
+  it "does save each item in the collection when generated via create or crank!" do
+    Factory.create(:users_collection).select { |u| !u.saved? }.should be_empty
+    crank!(:users_collection).select { |u| !u.saved? }.should be_empty
+  end
+
   it "allows all attributes to be overriden in the call" do
     u = Factory.build(:user, :name => "Indy", :email => "indy@home.com", :role => :dog, :unique => :yep)
     u.name.should == "Indy"
