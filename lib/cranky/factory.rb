@@ -1,7 +1,7 @@
 module Cranky
-  class Factory
+  class FactoryBase
 
-    attr_writer :debug
+    TRAIT_METHOD_REGEXP = /apply_trait_(\w+)_to_(\w+)/.freeze
 
     def initialize
       # Factory jobs can be nested, i.e. a factory method can itself invoke another factory method to
@@ -19,6 +19,12 @@ module Cranky
     def create(what, overrides={})
       item = build(what, overrides)
       Array(item).each(&:save)
+      item
+    end
+
+    def create!(what, overrides={})
+      item = build(what, overrides)
+      Array(item).each(&:save!)
       item
     end
 
@@ -55,6 +61,27 @@ module Cranky
       item = debug(*args)
       item.save
       item
+    end
+
+    # Look for errors in factories and (optionally) their traits.
+    # Parameters:
+    # factory_names - which factories to lint; omit for all factories
+    # options:
+    #   traits : true - to lint traits as well as factories
+    def lint!(factory_names: nil, traits: false)
+      factories_to_lint = Array(factory_names || self.factory_names)
+      strategy = traits ? :factory_and_traits : :factory
+      Linter.new(self, factories_to_lint, strategy).lint!
+    end
+
+    def factory_names
+      public_methods(false).reject {|m| TRAIT_METHOD_REGEXP === m  }
+    end
+
+    def traits_for(factory_name)
+      regexp = /^apply_trait_(\w+)_to_#{factory_name}$/.freeze
+      trait_methods = public_methods(false).select {|m| regexp === m  }
+      trait_methods.map {|m| regexp.match(m)[1] }
     end
 
     private
@@ -118,5 +145,7 @@ module Cranky
 
   end
 
-end
+  class Factory < FactoryBase
+  end
 
+end

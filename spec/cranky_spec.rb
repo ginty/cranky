@@ -2,7 +2,44 @@ require "spec_helper"
 
 describe "The Cranky factory" do
 
-  before(:each) do
+  describe '#factory_names' do
+    it 'returns an array of names of defined factories' do
+      Factory.factory_names.should eq [:user,
+                                       :address,
+                                       :users_collection,
+                                       :user_manually,
+                                       :user_by_define,
+                                       :admin_manually,
+                                       :admin_by_define,
+                                       :user_hash,
+                                       :invalid_user]
+    end
+  end
+
+  describe '#traits_for' do
+    it 'returns an array of trait names defined for the given factory' do
+      Factory.traits_for(:user_manually).should eq ['manager']
+    end
+  end
+
+  describe '#create!' do
+    context 'given invalid record' do
+      let(:factory_name) { :invalid_user }
+
+      it 'raises an error if validation failed' do
+        expect { Factory.create!(factory_name) }.to raise_error('Validation failed: {:required_attr=>["can\'t be blank"]}')
+      end
+    end
+
+    context 'given valid record' do
+      let(:factory_name) { :user }
+
+      it 'creates object' do
+        result = nil
+        expect { result = Factory.create!(factory_name) }.to_not raise_error
+        result.should be_saved
+      end
+    end
   end
 
   it "is alive" do
@@ -37,10 +74,10 @@ describe "The Cranky factory" do
   end
 
   it "clears all instance variables when reset" do
-    Factory.some_instance_variable = true
-    Factory.some_instance_variable.should == true
+    Factory.instance_variable_set('@some_instance_variable', true)
+    Factory.instance_variable_get('@some_instance_variable').should be_true
     Factory.reset
-    Factory.some_instance_variable.should == nil
+    Factory.instance_variable_get('@some_instance_variable').should be_nil
   end
 
   it "can create items using the define helper or manually" do
@@ -79,7 +116,7 @@ describe "The Cranky factory" do
   describe "debugger" do 
 
     it "raises an error if the factory produces an invalid object when enabled (rails only)" do
-      expect { Factory.debug(:user) }.to raise_error(
+      expect { Factory.debug(:user, required_attr: nil) }.to raise_error(
         'Oops, the User created by the Factory has the following errors: {:required_attr=>["can\'t be blank"]}'
       )
     end
@@ -147,7 +184,7 @@ describe "The Cranky factory" do
   end
 
   it "returns nothing extra in the attributes" do
-    crank(:user_attrs).size.should == 5
+    crank(:user_attrs).size.should == 6
   end
 
   specify "attributes for works with factory methods using inherit" do

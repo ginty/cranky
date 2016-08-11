@@ -1,5 +1,6 @@
 require 'cranky/version'
 require 'cranky/job'
+require 'cranky/linter'
 require 'cranky/factory'
 
 # Instantiate a factory, this enables an easy drop in for tests written for Factory Girl  

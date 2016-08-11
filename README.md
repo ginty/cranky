@@ -217,6 +217,66 @@ def users_collection
 end
 ~~~
 
+## Linting Factories
+
+Cranky allows for linting known factories:
+
+~~~ruby
+Factory.lint!
+~~~
+
+`Factory.lint!` creates each factory and catches any exceptions raised during the creation process. `Cranky::Linter::InvalidFactoryError` is raised with a list of factories (and corresponding exceptions) for factories which could not be created.
+
+Recommended usage of `Factory.lint!` is to run this in a task before your test suite is executed. Running it in a `before(:suite)`, will negatively impact the performance of your tests when running single tests.
+
+Example Rake task:
+
+~~~ruby
+# lib/tasks/factory_girl.rake
+namespace :cranky do
+  desc "Verify that all factories are valid"
+  task lint: :environment do
+    if Rails.env.test?
+      begin
+        DatabaseCleaner.start
+        Factory.lint!
+      ensure
+        DatabaseCleaner.clean
+      end
+    else
+      system("bundle exec rake cranky:lint RAILS_ENV='test'")
+    end
+  end
+end
+~~~
+
+After calling `Factory.lint!`, you'll likely want to clear out the database, as records will most likely be created. The provided example above uses the database_cleaner gem to clear out the database; be sure to add the gem to your Gemfile under the appropriate groups.
+
+You can lint factories selectively by passing only factories you want linted:
+
+~~~ruby
+factories_to_lint = Factory.factory_names.reject do |name|
+  name =~ /^old_/
+end
+
+Factory.lint! factories_to_lint
+~~~
+
+This would lint all factories that aren't prefixed with `old_`.
+
+Traits can also be linted. This option verifies that each
+and every trait of a factory generates a valid object on its own. This is turned on by passing traits: true to the lint method:
+
+~~~ruby
+Factory.lint! traits: true
+~~~
+
+This can also be combined with other arguments:
+
+~~~ruby
+Factory.lint! factories_to_lint, traits: true
+~~~
+
 ## Helpers
 
 Of course its nice to get some help...
