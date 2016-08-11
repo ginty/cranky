@@ -70,7 +70,7 @@ Cranky allows you to build factories via std Ruby methods, like this...
 # factories/my_factories.rb
 class Cranky::Factory     # Your factory must reopen Cranky::Factory
 
-  # Simple factory method to create a user instance, you would call this via Factory.build(:user)
+  # Simple factory method to create a user instance, you would call this via crank(:user)
   def user
     # Define attributes via a hash, generate the values any way you want
     define :name    => "Jimmy",               
@@ -79,7 +79,7 @@ class Cranky::Factory     # Your factory must reopen Cranky::Factory
            :address => default_address         # Call your own helper methods to wire up your associations
   end
 
-  # Easily create variations via the inherit helper, callable via Factory.build(:admin)
+  # Easily create variations via the inherit helper, callable via crank(:admin)
   def admin
     inherit(:user, :role => "admin")
   end
@@ -89,12 +89,12 @@ class Cranky::Factory     # Your factory must reopen Cranky::Factory
     @default_address ||= create(:address) 
   end
   
-  # Alternatively loose the DSL altogether and define the factory yourself, still callable via Factory.build(:address)
+  # Alternatively loose the DSL altogether and define the factory yourself, still callable via crank(:address)
   def address
     a = Address.new
     a.street = "192 Broadway"
     a.city = options[:city] || "New York"   # You can get any caller overrides via the options hash
-    a                                       # Only rule is the method must return the generated object 
+    a                                       # Only rule is that the method must return the generated object 
   end
 
 end
@@ -109,8 +109,8 @@ This is where Cranky really shines, if you can create Ruby methods you can prett
 The only rules are:
 
 1. Your factory must reopen the Cranky::Factory class
-2. Your factory method must return the object you wanted to create
-3. You can access the overrides passed in via options[:key]. (not really a rule!) 
+2. Your factory method must return the object you wanted to create (or an array containing a collection of them)
+3. You can access the overrides passed in via options[:key]. (not really a rule!)
 
 So for example to create a simple user factory...
 
@@ -118,7 +118,7 @@ So for example to create a simple user factory...
 # factories/my_factories.rb
 class Cranky::Factory
 
-  # Simple factory method to create a user instance, you would call this via Factory.build(:user)
+  # Simple factory method to create a user instance, you would call this via crank(:user)
   def user
     u       = User.new
     u.name  = options[:name] || "Jimmy"                 # Use the passed in name if present, or the default
@@ -172,7 +172,7 @@ end
 You can pass additional arguments to your factories via the overrides hash...
 
 ~~~ruby
-Factory.build(:user, :new_address => true)
+crank(:user, :new_address => true)
 
 def user
   u         = User.new
@@ -187,13 +187,13 @@ end
 You can use traits...
 
 ~~~ruby
-Factory.build(:user, traits: [:admin, :manager])
+crank(:user, traits: [:admin, :manager])
 
 def user
   u         = User.new
   u.name    = options[:name] || "Jimmy"
   u.email   = options[:email] || "jimmy#{n}@home.com"
-  u.role    = options[:role] || "pleb"
+  u.roles   = options[:roles] || []
   u.address = options[:new_address] ? create(:address) : default_address
   u
 end
@@ -210,7 +210,7 @@ end
 You can create collections...
 
 ~~~ruby
-Factory.create(:users_collection)
+crank(:users_collection)
 
 def users_collection
   3.time.map { build(:user) }
@@ -244,7 +244,7 @@ If you like you can generate attributes with a block:
 ~~~ruby
 def user
   define :name    => "Jimmy",
-         :email   => lambda{|u| "#{u.name.downcase}@home.com"},
+         :email   => -> { |u| "#{u.name.downcase}@home.com" },
          :role    => "pleb",
          :address => default_address
 end
@@ -266,7 +266,7 @@ end
 If for any reason you want to have your factory method named differently from the model it instantiates you can pass in a :class attribute to the define method...
 
 ~~~ruby
-# Called via Factory.create(:jimmy)
+# Called via crank(:jimmy)
 def jimmy
   u = define :class   => :user, 
              :name    => "Jimmy",
@@ -281,7 +281,7 @@ end
 You can inherit from other factories via the inherit method. So for example to create an admin user you might do...
 
 ~~~ruby
-# Called via Factory.create(:admin)
+# Called via crank(:admin)
 def admin
   inherit(:user, :role => "admin")  # Pass in any attribute overrides you want
 end
@@ -308,11 +308,11 @@ end
 Sometimes it is useful to be warned that your factory is generating invalid instances (although quite often your tests may intentionally generate invalid instances, so use this with care). By turning on debug the Factory will raise an error if the generated instance is invalid...
 
 ~~~ruby
-Factory.debug(:user)   # A replacement for Factory.build, with validation warnings enabled
+Factory.debug(:user)   # A replacement for Factory.build, with validation errors enabled
 Factory.debug!(:user)  # Likewise for Factory.create
 ~~~
 
-Note that this relies on the instance having a valid? method, so in practice this may only work with Rails.
+Note that this relies on the instance having a valid? method, so in practice this may only work with models that include ActiveModel::Validations.
 
 ### Attributes For
 
