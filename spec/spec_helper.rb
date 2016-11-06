@@ -55,11 +55,11 @@ class Cranky::Factory
 
   def user_manually
     u = User.new
-    u.name = "Fred"
-    u.role = options[:role] || :user
-    u.unique = "value#{n}"
-    u.email = "fred@home.com"
-    u.address = Factory.build(:address)
+    u.name = fetch(:name, 'Fred')
+    u.role = fetch(:role) { :user }
+    u.unique = fetch(:unique) { "value#{n}" }
+    u.email = fetch(:email) { "fred@home.com" }
+    u.address = fetch(:address) { Factory.build(:address) }
     u.required_attr = true
     u
   end

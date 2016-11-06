@@ -110,7 +110,7 @@ The only rules are:
 
 1. Your factory must reopen the Cranky::Factory class
 2. Your factory method must return the object you wanted to create (or an array containing a collection of them)
-3. You can access the overrides passed in via options[:key]. (not really a rule!)
+3. You can access the overrides passed in via `options[:key]` or `fetch(:key)`. (not really a rule!)
 
 So for example to create a simple user factory...
 
@@ -120,11 +120,14 @@ class Cranky::Factory
 
   # Simple factory method to create a user instance, you would call this via crank(:user)
   def user
-    u       = User.new
-    u.name  = options[:name] || "Jimmy"                 # Use the passed in name if present, or the default
-    u.email = options[:email] || "jimmy#{n}@home.com"   # Give each user a unique email address
-    u.role  = options[:role] || "pleb"
-    u
+    User.new do |u|
+      u.name  = options[:name] || "Jimmy"                 # Use the passed in name if present, or the default
+      u.nickname  = fetch(:nickname, 'Silencer')          # Use the passed in nickname if present, or the default
+      u.phone  = fetch(:phone, 'phoneless')               # Use the passed in phone if present, or the default
+
+      u.email = fetch(:email) { "jimmy#{n}@home.com" }    # Give each user a unique email address
+      u.role  = fetch(:role, 'pleb')
+    end
   end
 
 end
@@ -144,12 +147,12 @@ class Cranky::Factory
   end
 
   def user
-    u         = User.new
-    u.name    = options[:name] || "Jimmy"
-    u.email   = options[:email] || "jimmy#{n}@home.com"
-    u.role    = options[:role] || "pleb"
-    u.address = default_address
-    u
+    User.new do |u|
+      u.name    = fetch(:name, "Jimmy")
+      u.email   = fetch(:email) { "jimmy#{n}@home.com" }
+      u.role    = fetch(:role, "pleb")
+      u.address = fetch(:address) { default_address }
+    end
   end
 
   # Create the address factory in the same way
@@ -175,12 +178,12 @@ You can pass additional arguments to your factories via the overrides hash...
 crank(:user, :new_address => true)
 
 def user
-  u         = User.new
-  u.name    = options[:name] || "Jimmy"
-  u.email   = options[:email] || "jimmy#{n}@home.com"
-  u.role    = options[:role] || "pleb"
-  u.address = options[:new_address] ? create(:address) : default_address
-  u
+  User.new do |u|
+    u.name    = fetch(:name, "Jimmy")
+    u.email   = fetch(:email) { "jimmy#{n}@home.com" }
+    u.role    = fetch(:role, "pleb")
+    u.address = options[:new_address] ? create(:address) : default_address
+  end
 end
 ~~~
 
@@ -190,12 +193,12 @@ You can use traits...
 crank(:user, traits: [:admin, :manager])
 
 def user
-  u         = User.new
-  u.name    = options[:name] || "Jimmy"
-  u.email   = options[:email] || "jimmy#{n}@home.com"
-  u.roles   = options[:roles] || []
-  u.address = options[:new_address] ? create(:address) : default_address
-  u
+  User.new do |u|
+    u.name    = fetch(:name, "Jimmy")
+    u.email   = fetch(:email) { "jimmy#{n}@home.com" }
+    u.role    = fetch(:role, "pleb")
+    u.address = options[:new_address] ? create(:address) : default_address
+  end
 end
 
 def apply_trait_admin_to_user(user)

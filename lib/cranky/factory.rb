@@ -84,6 +84,14 @@ module Cranky
       trait_methods.map {|m| regexp.match(m)[1] }
     end
 
+    def fetch(*args)
+      if block_given?
+        options.fetch(*args, &Proc.new)
+      else
+        options.fetch(*args)
+      end
+    end
+
     private
 
       def apply_traits(what, item)
