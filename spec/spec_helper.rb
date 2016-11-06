@@ -19,6 +19,13 @@ class TestClass
     @saved = true
   end
 
+  def save!
+    if invalid?
+      raise "Validation failed: #{errors.messages}"
+    end
+    save
+  end
+
   def saved?
     !!@saved
   end
@@ -38,7 +45,6 @@ class User < TestClass
   attr_accessor :address
 end
 
-
 class Address < TestClass
   attr_accessor :address
   attr_accessor :city
@@ -47,32 +53,32 @@ end
 # Some basic factory methods
 class Cranky::Factory
 
-  attr_accessor :some_instance_variable
-
   def user_manually
-    u = User.new    
+    u = User.new
     u.name = "Fred"
     u.role = options[:role] || :user
     u.unique = "value#{n}"
     u.email = "fred@home.com"
     u.address = Factory.build(:address)
+    u.required_attr = true
     u
   end
 
   def user_by_define
-    u = define :class => :user, 
+    u = define :class => :user,
                :name => "Fred",
                :role => :user,
                :unique => "value#{n}",
                :email => "fred@home.com",
-               :address => Factory.create(:address)
+               :address => Factory.create(:address),
+               :required_attr => true
     u.argument_received = true if options[:argument_supplied]
     u
   end
   alias :user :user_by_define
 
   def admin_manually
-    inherit(:user_manually, :role => :admin)
+    inherit(:user_manually, role: :admin, required_attr: true)
   end
 
   def admin_by_define
@@ -81,7 +87,8 @@ class Cranky::Factory
 
   def address
     define :address => "25 Wisteria Lane",
-           :city => "New York"
+           :city => "New York",
+           :required_attr => true
   end
 
   def user_hash
@@ -96,5 +103,13 @@ class Cranky::Factory
 
   def apply_trait_manager_to_user_manually(user)
     user.role = :manager
+  end
+
+  def apply_trait_invalid_to_user(user)
+    user.required_attr = nil
+  end
+
+  def invalid_user
+    inherit(:user, required_attr: false)
   end
 end
