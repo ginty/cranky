@@ -69,8 +69,6 @@ class Cranky::Factory
                :name => "Fred",
                :role => :user,
                :unique => "value#{n}",
-               :email => "fred@home.com",
-               :address => Factory.create(:address),
                :required_attr => true
     u.argument_received = true if options[:argument_supplied]
     u
@@ -101,6 +99,12 @@ class Cranky::Factory
     3.times.map { build(:user) }
   end
 
+  def invalid_user
+    inherit(:user, required_attr: false)
+  end
+
+  private
+
   def apply_trait_manager_to_user_manually(user)
     user.role = :manager
   end
@@ -109,7 +113,23 @@ class Cranky::Factory
     user.required_attr = nil
   end
 
-  def invalid_user
-    inherit(:user, required_attr: false)
+  def after_build_user_by_define(user)
+    if user.respond_to?('[]')
+      user[:email] = 'fred@home.com'
+    else
+      user.email = 'fred@home.com'
+    end
+  end
+
+  def before_create_user_by_define(user)
+    user.address = create!(:address)
+  end
+
+  def after_create_user_by_define(user)
+    user.email = 'max@home.com'
+  end
+
+  def after_create_not_existing_factory(user)
+    user.address = create!(:address)
   end
 end

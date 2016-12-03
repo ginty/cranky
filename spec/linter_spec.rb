@@ -5,8 +5,12 @@ describe 'Factory.lint' do
     error_message = <<-ERROR_MESSAGE.strip
 The following factories are invalid:
 
-* user_hash - undefined method `save!' for [:name, "Fred"]:Array (NoMethodError)
 * invalid_user - Validation failed: {:required_attr=>["can't be blank"]} (RuntimeError)
+* user_hash - undefined method `save!' for [:name, "Fred"]:Array (NoMethodError)
+
+The following callbacks are invalid:
+
+after_create_not_existing_factory
     ERROR_MESSAGE
 
     expect do
@@ -15,7 +19,14 @@ The following factories are invalid:
   end
 
   it 'does not raise when all factories are valid' do
-    expect { Factory.lint!(factory_names: [:admin_manually, :address]) }.not_to raise_error
+    error_message = <<-ERROR_MESSAGE.strip
+The following callbacks are invalid:
+
+after_create_not_existing_factory
+        ERROR_MESSAGE
+    expect do
+      Factory.lint!(factory_names: [:admin_manually, :address])
+    end.to raise_error Cranky::Linter::InvalidFactoryError, error_message
   end
 
   describe "trait validation" do
@@ -24,9 +35,13 @@ The following factories are invalid:
         error_message = <<-ERROR_MESSAGE.strip
 The following factories are invalid:
 
+* invalid_user - Validation failed: {:required_attr=>["can't be blank"]} (RuntimeError)
 * user+invalid - Validation failed: {:required_attr=>["can't be blank"]} (RuntimeError)
 * user_hash - undefined method `save!' for [:name, "Fred"]:Array (NoMethodError)
-* invalid_user - Validation failed: {:required_attr=>["can't be blank"]} (RuntimeError)
+
+The following callbacks are invalid:
+
+after_create_not_existing_factory
         ERROR_MESSAGE
 
         expect do

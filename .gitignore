@@ -2,3 +2,5 @@
 *.swo
 *.gem
 coverage/*
+Dockerfile
+docker-compose.yml
