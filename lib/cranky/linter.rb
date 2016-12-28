@@ -6,16 +6,17 @@ module Cranky
       @factories_to_lint = factories_to_lint
       @linting_method = "lint_#{linting_strategy}"
       @invalid_factories = calculate_invalid_factories
+      @invalid_callbacks = calculate_invalid_callbacks
     end
 
     def lint!
-      if invalid_factories.any?
+      if invalid_factories.any? || invalid_callbacks.any?
         raise InvalidFactoryError, error_message
       end
     end
 
-    attr_reader :factories_to_lint, :invalid_factories
-    private :factories_to_lint, :invalid_factories
+    attr_reader :factories_to_lint, :invalid_factories, :invalid_callbacks
+    private :factories_to_lint, :invalid_factories, :invalid_callbacks
 
     private
 
@@ -25,6 +26,25 @@ module Cranky
         result[factory] |= errors unless errors.empty?
         result
       end
+    end
+
+    def calculate_invalid_callbacks
+      result = []
+
+      regexp = /^(after_build|before_create|after_create)_(\w+)$/.freeze
+      available_methods = @factory.private_methods(false) + @factory.public_methods(false)
+      available_methods.select do |m|
+        match = regexp.match(m)
+        if match
+          factory_name = match[2]
+
+          unless @factory.respond_to?(factory_name)
+            result << m
+          end
+        end
+      end
+
+      result
     end
 
     # Raised when any factory is considered invalid
@@ -87,15 +107,26 @@ module Cranky
     end
 
     def error_message
+      [
+        factories_error_message,
+        callbacks_error_message
+      ].compact.join("\n\n".freeze)
+    end
+
+    def factories_error_message
       lines = invalid_factories.map do |_factory, exceptions|
         exceptions.map(&:message)
       end.flatten
 
-      <<-ERROR_MESSAGE.strip
-The following factories are invalid:
+      return if lines.empty?
 
-#{lines.join("\n")}
-      ERROR_MESSAGE
+      "The following factories are invalid:\n\n#{lines.join("\n")}"
+    end
+
+    def callbacks_error_message
+      return if invalid_callbacks.empty?
+
+      "The following callbacks are invalid:\n\n#{invalid_callbacks.join("\n")}"
     end
   end
 end

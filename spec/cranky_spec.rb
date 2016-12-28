@@ -4,15 +4,17 @@ describe "The Cranky factory" do
 
   describe '#factory_names' do
     it 'returns an array of names of defined factories' do
-      Factory.factory_names.should eq [:user,
-                                       :address,
-                                       :users_collection,
-                                       :user_manually,
-                                       :user_by_define,
-                                       :admin_manually,
-                                       :admin_by_define,
-                                       :user_hash,
-                                       :invalid_user]
+      Factory.factory_names.should eq %i(
+                                        address
+                                        admin_by_define
+                                        admin_manually
+                                        invalid_user
+                                        user
+                                        user_by_define
+                                        user_hash
+                                        user_manually
+                                        users_collection
+                                      )
     end
   end
 
@@ -144,10 +146,12 @@ describe "The Cranky factory" do
   it "allows factories to call other factories" do
     Factory.build(:user_manually).address.city.should == "New York"
     Factory.create(:user_manually).address.city.should == "New York"
+    Factory.create!(:user_manually).address.city.should == "New York"
     Factory.create(:user_manually).address.saved?.should == false
-    Factory.build(:user_by_define).address.city.should == "New York"
     Factory.create(:user_by_define).address.city.should == "New York"
     Factory.create(:user_by_define).address.saved?.should == true
+    Factory.create(:user_by_define).email.should == 'max@home.com'
+    Factory.create!(:user_by_define).email.should == 'max@home.com'
   end
 
   it "has its own syntax" do
@@ -184,7 +188,7 @@ describe "The Cranky factory" do
   end
 
   it "returns nothing extra in the attributes" do
-    crank(:user_attrs).size.should == 6
+    crank(:user_attrs).size.should == 4
   end
 
   specify "attributes for works with factory methods using inherit" do

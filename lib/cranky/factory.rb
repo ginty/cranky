@@ -13,18 +13,28 @@ module Cranky
     end
 
     def build(what, overrides={})
-      crank_it(what, overrides)
+      item = crank_it(what, overrides)
+      call_after_build(what, item)
+
+      item
     end
 
     def create(what, overrides={})
       item = build(what, overrides)
-      Array(item).each(&:save)
+      Array(item).each do |i|
+        call_before_create(what, i)
+        i.save && call_after_create(what, i)
+      end
       item
     end
 
     def create!(what, overrides={})
       item = build(what, overrides)
-      Array(item).each(&:save!)
+      Array(item).each do |i|
+        call_before_create(what, i)
+        i.save!
+        call_after_create(what, i)
+      end
       item
     end
 
@@ -75,12 +85,13 @@ module Cranky
     end
 
     def factory_names
-      public_methods(false).reject {|m| TRAIT_METHOD_REGEXP === m  }
+      public_methods(false).reject {|m| TRAIT_METHOD_REGEXP === m  }.sort
     end
 
     def traits_for(factory_name)
       regexp = /^apply_trait_(\w+)_to_#{factory_name}$/.freeze
-      trait_methods = public_methods(false).select {|m| regexp === m  }
+      available_methods = private_methods(false) + public_methods(false)
+      trait_methods = available_methods.select {|m| regexp === m  }
       trait_methods.map {|m| regexp.match(m)[1] }
     end
 
@@ -94,10 +105,25 @@ module Cranky
 
     private
 
+      def call_after_build(what, item)
+        method_name = "after_build_#{what}"
+        respond_to?(method_name, true) && send(method_name, item)
+      end
+
+      def call_before_create(what, item)
+        method_name = "before_create_#{what}"
+        respond_to?(method_name, true) && send(method_name, item)
+      end
+
+      def call_after_create(what, item)
+        method_name = "after_create_#{what}"
+        respond_to?(method_name, true) && send(method_name, item)
+      end
+
       def apply_traits(what, item)
         Array(options[:traits]).each do |t|
           trait_method_name = "apply_trait_#{t}_to_#{what}"
-          fail("Invalid trait '#{t}'! No method '#{trait_method_name}' is defined.") unless respond_to?(trait_method_name)
+          respond_to?(trait_method_name, true) || fail("Invalid trait '#{t}'! No method '#{trait_method_name}' is defined.")
           send(trait_method_name, item)
         end
 

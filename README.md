@@ -202,10 +202,12 @@ def user
 end
 
 def apply_trait_admin_to_user(user)
+  # the 'options' method is available here
   user.roles << :admin
 end
 
 def apply_trait_manager_to_user(user)
+  # the 'options' method is available here
   user.roles << :manager
 end
 ~~~
@@ -217,6 +219,36 @@ crank(:users_collection)
 
 def users_collection
   3.time.map { build(:user) }
+end
+~~~
+
+You can inject code using callbacks...
+
+~~~ruby
+# factories/my_factories.rb
+class Cranky::Factory
+
+  def user
+    define name: 'Jimmy'
+  end
+  
+  private
+  
+  def after_build_user(user)
+    # the 'options' method is available here
+    do_something_to(user)
+  end
+
+  def before_create_user(user)
+    # the 'options' method is available here
+    do_something_to(user)
+  end
+
+  def after_create_user(user)
+    # the 'options' method is available here
+    do_something_to(user)
+  end
+
 end
 ~~~
 
@@ -235,7 +267,7 @@ Recommended usage of `Factory.lint!` is to run this in a task before your test s
 Example Rake task:
 
 ~~~ruby
-# lib/tasks/factory_girl.rake
+# lib/tasks/cranky.rake
 namespace :cranky do
   desc "Verify that all factories are valid"
   task lint: :environment do
